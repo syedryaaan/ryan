@@ -21,6 +21,7 @@ const seedData = async () => {
     const adminUser = await User.create({
       name: "Chief Warden",
       email: "admin@xshostel.com",
+      password: "Admin@123",
       passwordHash: "Admin@123",
       role: "admin",
       phone: "+91 9876543210"
@@ -29,6 +30,7 @@ const seedData = async () => {
     const studentUser = await User.create({
       name: "Demo Student",
       email: "student@xshostel.com",
+      password: "Student@123",
       passwordHash: "Student@123",
       role: "student",
       studentId: "STU-2026-1042",
