@@ -346,6 +346,7 @@ const vacateBooking = async (req, res) => {
 };
 
 module.exports = {
+  ...bookingController,
   getMyBookings,
   vacateBooking,
 };

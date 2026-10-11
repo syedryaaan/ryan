@@ -1,81 +1,132 @@
 import React, { useState, useEffect } from "react";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Rooms from "./pages/Rooms";
+import Auth from "./pages/Auth";
 import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 import AdminLayout from "./pages/admin/AdminLayout";
 
 // ==============================================================================
 // App — Main Root Component for XSHostel
-// Manages:
-// 1. Role simulation (Student vs Chief Warden)
-// 2. View switching (Student Resident Portal vs Chief Warden Operations Console)
-// 3. Route protection for /admin routes
+// Implements Issue #4 Smart Campus UI Design System, Layout, Navbar, Footer,
+// Home Page, Room Explorer, Auth, and Integrated Chief Warden Console (/admin).
 // ==============================================================================
 function App() {
-  // Current active view: "admin" or "student"
-  const [currentView, setCurrentView] = useState("admin"); // Starts in admin view for Issue #8 evaluation
-  // Current tab in the student portal: "bookings" or "profile"
-  const [studentTab, setStudentTab] = useState("bookings");
-  // Simulated user role: "warden" (admin) or "student"
-  const [userRole, setUserRole] = useState("warden");
-  // Toast alert message
+  // 1. Navigation Route State (default to "/" for Home page)
+  const [currentPath, setCurrentPath] = useState(window.location.pathname || "/");
+
+  // Query parameter state for filtering rooms
+  const [queryBlock, setQueryBlock] = useState("");
+  const [querySearch, setQuerySearch] = useState("");
+
+  // 2. Simulated Authentication State
+  // Default logged-in as student resident
+  const [user, setUser] = useState({
+    name: "Chandra Tripathi",
+    email: "student@example.com",
+    studentId: "STU-2026-1042",
+    role: "student", // "student" or "admin"
+  });
+
+  // Global Toast Alert Message
   const [toastMessage, setToastMessage] = useState("");
 
-  // Listen to browser navigation (back/forward button)
+  // 3. Sync with browser back/forward buttons
   useEffect(() => {
-    const handleUrlChange = () => {
-      if (window.location.pathname.startsWith("/admin")) {
-        attemptAccessAdmin();
-      }
+    const handlePopState = () => {
+      parseAndSetRoute(window.location.pathname + window.location.search);
     };
 
-    window.addEventListener("popstate", handleUrlChange);
-    return () => window.removeEventListener("popstate", handleUrlChange);
-  }, [userRole]);
+    window.addEventListener("popstate", handlePopState);
+    // Initial route parse on mount
+    parseAndSetRoute(window.location.pathname + window.location.search);
 
-  // Route protection logic: Check if user is allowed to access /admin
-  const attemptAccessAdmin = () => {
-    if (userRole !== "warden") {
-      // If student tries to enter admin: Block access and redirect to public homepage
-      setToastMessage("⛔ Access Denied: Chief Warden authorization required to access /admin.");
-      setCurrentView("student");
-      window.history.replaceState(null, "", "/");
-      setTimeout(() => setToastMessage(""), 5000);
-      return false;
-    }
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
-    // If warden: Allow entry into admin console
-    setCurrentView("admin");
-    window.history.pushState(null, "", "/admin");
-    return true;
-  };
+  // Helper to parse query parameters and update state
+  const parseAndSetRoute = (fullPath) => {
+    const [path, queryString] = fullPath.split("?");
+    setCurrentPath(path || "/");
 
-  // Switch back to public student site
-  const handleSwitchToStudent = () => {
-    setCurrentView("student");
-    window.history.pushState(null, "", "/");
-  };
-
-  // Toggle user role between Student and Chief Warden
-  const handleToggleRole = () => {
-    if (userRole === "warden") {
-      setUserRole("student");
-      // If currently on admin console, student cannot remain there!
-      if (currentView === "admin") {
-        setCurrentView("student");
-        window.history.replaceState(null, "", "/");
-        setToastMessage("Switched to Student Role. Automatically exited /admin console.");
-        setTimeout(() => setToastMessage(""), 5000);
-      }
+    if (queryString) {
+      const params = new URLSearchParams(queryString);
+      setQueryBlock(params.get("block") || "");
+      setQuerySearch(params.get("search") || "");
     } else {
-      setUserRole("warden");
-      setToastMessage("Switched to Chief Warden Role. Admin console unlocked.");
-      setTimeout(() => setToastMessage(""), 4000);
+      setQueryBlock("");
+      setQuerySearch("");
     }
+  };
+
+  // 4. Client-side Navigation Handler
+  const handleNavigate = (targetPath) => {
+    // If trying to access /admin as a non-admin
+    if (targetPath.startsWith("/admin")) {
+      if (!user || (user.role !== "admin" && user.role !== "warden")) {
+        setToastMessage("⛔ Access Denied: Chief Warden authorization required to access /admin.");
+        setCurrentPath("/");
+        window.history.pushState(null, "", "/");
+        setTimeout(() => setToastMessage(""), 5000);
+        return;
+      }
+    }
+
+    parseAndSetRoute(targetPath);
+    window.history.pushState(null, "", targetPath);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // 5. Auth Handlers
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setToastMessage(`Welcome back, ${userData.name}!`);
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setToastMessage("You have been logged out.");
+    setTimeout(() => setToastMessage(""), 4000);
+    handleNavigate("/");
+  };
+
+  // Toggle user role between student and admin for quick evaluation
+  const handleToggleRole = () => {
+    if (!user) {
+      setUser({
+        name: "Chandra Tripathi",
+        email: "student@example.com",
+        studentId: "STU-2026-1042",
+        role: "student",
+      });
+      return;
+    }
+
+    const newRole = user.role === "student" ? "admin" : "student";
+    setUser({
+      ...user,
+      role: newRole,
+      name: newRole === "admin" ? "Dr. Alok Verma" : "Chandra Tripathi",
+    });
+
+    if (newRole === "student" && currentPath.startsWith("/admin")) {
+      handleNavigate("/");
+      setToastMessage("Switched to Student Role. Automatically exited /admin console.");
+    } else {
+      setToastMessage(
+        `Role switched to ${newRole === "admin" ? "Chief Warden (Admin)" : "Student Resident"}.`
+      );
+    }
+    setTimeout(() => setToastMessage(""), 4000);
   };
 
   return (
-    <div className="app-root-container">
-      {/* 1. Global Toast Alert */}
+    <div className="app-layout">
+      {/* Toast Alert Notification */}
       {toastMessage && (
         <div className="global-toast-notification">
           <span>{toastMessage}</span>
@@ -83,101 +134,139 @@ function App() {
         </div>
       )}
 
-      {/* 2. Role Simulation & Quick Switch Banner */}
+      {/* Role Demonstration Switcher Banner */}
       <div className="role-switcher-banner no-print">
         <div className="role-switcher-inner">
           <div className="role-status">
-            <span>Current Role Simulation: </span>
-            <strong className={`role-tag-pill ${userRole}`}>
-              {userRole === "warden" ? "🛡️ Chief Warden (Admin)" : "🎓 Student Resident"}
-            </strong>
+            <span>Authentication Simulation: </span>
+            {user ? (
+              <strong className={`role-tag-pill ${user.role}`}>
+                {user.role === "admin" || user.role === "warden"
+                  ? "🛡️ Chief Warden (Admin)"
+                  : "🎓 Student Resident"}{" "}
+                ({user.name})
+              </strong>
+            ) : (
+              <strong className="role-tag-pill">Logged Out</strong>
+            )}
           </div>
           <div className="role-actions">
-            <button
-              type="button"
-              className="btn-role-toggle"
-              onClick={handleToggleRole}
-            >
-              🔄 Switch to {userRole === "warden" ? "Student Mode" : "Chief Warden Mode"}
-            </button>
-
-            {currentView === "student" ? (
-              <button
-                type="button"
-                className="btn-launch-admin"
-                onClick={attemptAccessAdmin}
-              >
-                Go to Chief Warden Console (/admin) →
-              </button>
+            {user ? (
+              <>
+                <button
+                  type="button"
+                  className="btn-role-toggle"
+                  onClick={handleToggleRole}
+                >
+                  🔄 Toggle to {user.role === "student" ? "Admin Mode" : "Student Mode"}
+                </button>
+                {user.role === "admin" || user.role === "warden" ? (
+                  currentPath.startsWith("/admin") ? (
+                    <button
+                      type="button"
+                      className="btn-launch-student"
+                      onClick={() => handleNavigate("/")}
+                    >
+                      ← Return to Public Campus Home
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-launch-admin"
+                      onClick={() => handleNavigate("/admin")}
+                    >
+                      Go to Chief Warden Console (/admin) →
+                    </button>
+                  )
+                ) : null}
+              </>
             ) : (
               <button
                 type="button"
-                className="btn-launch-student"
-                onClick={handleSwitchToStudent}
+                className="btn-role-toggle"
+                onClick={() =>
+                  setUser({
+                    name: "Chandra Tripathi",
+                    email: "student@example.com",
+                    role: "student",
+                  })
+                }
               >
-                ← Return to Student Portal (/)
+                Quick Sign In
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* 3. Conditional Rendering: Admin Console vs Student Portal */}
-      {currentView === "admin" && userRole === "warden" ? (
-        <AdminLayout onExitToPublicSite={handleSwitchToStudent} />
-      ) : (
-        <div className="app-layout">
-          {/* Top Navigation Bar for Student Portal */}
-          <nav className="navbar no-print">
-            <div className="nav-container">
-              <div className="nav-brand">
-                <span className="brand-logo">🏛</span>
-                <div>
-                  <span className="brand-title">XSHostel</span>
-                  <span className="brand-subtitle">Student Resident Portal</span>
-                </div>
-              </div>
+      {/* Main Persistent Navbar */}
+      <Navbar
+        currentPath={currentPath}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      />
 
-              <div className="nav-tabs">
+      {/* Main Page Content Area */}
+      <main className="main-content">
+        {currentPath === "/" && <Home onNavigate={handleNavigate} />}
+
+        {currentPath.startsWith("/rooms") && (
+          <Rooms
+            initialBlock={queryBlock}
+            initialSearch={querySearch}
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {currentPath === "/login" && (
+          <Auth mode="login" onLogin={handleLogin} onNavigate={handleNavigate} />
+        )}
+
+        {currentPath === "/register" && (
+          <Auth mode="register" onLogin={handleLogin} onNavigate={handleNavigate} />
+        )}
+
+        {currentPath === "/my-bookings" && <MyBookings onNavigate={handleNavigate} />}
+
+        {currentPath === "/profile" && <Profile onNavigate={handleNavigate} />}
+
+        {currentPath.startsWith("/admin") &&
+          (user && (user.role === "admin" || user.role === "warden") ? (
+            <AdminLayout onExitToPublicSite={() => handleNavigate("/")} />
+          ) : (
+            <div className="rooms-page-container">
+              <div className="empty-state-box">
+                <span className="empty-icon">⛔</span>
+                <h2>Access Restricted</h2>
+                <p>Chief Warden privileged credentials required to access /admin.</p>
                 <button
                   type="button"
-                  className={`nav-tab-btn ${studentTab === "bookings" ? "active" : ""}`}
-                  onClick={() => setStudentTab("bookings")}
+                  className="btn-primary-action"
+                  style={{ marginTop: "16px" }}
+                  onClick={() => handleNavigate("/")}
                 >
-                  My Allocations
+                  ← Return to Public Campus Home
                 </button>
-
-                <button
-                  type="button"
-                  className={`nav-tab-btn ${studentTab === "profile" ? "active" : ""}`}
-                  onClick={() => setStudentTab("profile")}
-                >
-                  Student Profile
-                </button>
-              </div>
-
-              <div className="student-badge">
-                <span className="student-avatar">CT</span>
-                <div className="student-meta">
-                  <span className="student-name">Chandra Tripathi</span>
-                  <span className="student-roll">STU-2026-1042</span>
-                </div>
               </div>
             </div>
-          </nav>
+          ))}
 
-          {/* Main Content Area */}
-          <main className="main-content">
-            {studentTab === "bookings" && <MyBookings />}
-            {studentTab === "profile" && <Profile />}
-          </main>
+        {/* 404 Not Found fallback for any other route */}
+        {currentPath !== "/" &&
+          !currentPath.startsWith("/rooms") &&
+          currentPath !== "/login" &&
+          currentPath !== "/register" &&
+          currentPath !== "/my-bookings" &&
+          currentPath !== "/profile" &&
+          !currentPath.startsWith("/admin") && (
+            <NotFound onNavigate={handleNavigate} />
+          )}
+      </main>
 
-          {/* Footer */}
-          <footer className="footer no-print">
-            <p>XSHostel — Campus Hostel Management System • Issue #8: Chief Warden Operations Console</p>
-          </footer>
-        </div>
-      )}
+      {/* Main Persistent Footer */}
+      <Footer onNavigate={handleNavigate} />
     </div>
   );
 }
