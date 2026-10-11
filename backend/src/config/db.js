@@ -13,7 +13,10 @@ const getMongoUri = () => {
   ) {
     return envUri;
   }
-  return "mongodb+srv://syedryaaan_db_user:Rayyan1122@cluster0.ageb2ld.mongodb.net/hostel-management?retryWrites=true&w=majority&appName=Cluster0";
+  return (
+    process.env.MONGO_URI ||
+    "mongodb+srv://syedryaaan_db_user:Rayyan1122@cluster0.ageb2ld.mongodb.net/?appName=Cluster0"
+  );
 };
 
 // Connect to MongoDB database with auto-retry
