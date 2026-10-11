@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 
 // ==============================================================================
 // AdminRooms — Beginner-Friendly Dormitory & Bed Management Component
@@ -51,7 +52,7 @@ function AdminRooms() {
     try {
       setLoading(true);
       setError("");
-      let url = "http://localhost:5001/api/admin/rooms?";
+      let url = `${API_BASE_URL}/admin/rooms?`;
       if (search.trim()) url += `search=${encodeURIComponent(search.trim())}&`;
       if (selectedBlock !== "All") url += `block=${encodeURIComponent(selectedBlock)}`;
 
@@ -138,8 +139,8 @@ function AdminRooms() {
 
       const isEdit = Boolean(editingRoom);
       const url = isEdit
-        ? `http://localhost:5001/api/admin/rooms/${editingRoom._id}`
-        : "http://localhost:5001/api/admin/rooms";
+        ? `${API_BASE_URL}/admin/rooms/${editingRoom._id}`
+        : `${API_BASE_URL}/admin/rooms`;
       const method = isEdit ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -179,7 +180,7 @@ function AdminRooms() {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5001/api/admin/rooms/${roomId}`, {
+      const res = await fetch(`${API_BASE_URL}/admin/rooms/${roomId}`, {
         method: "DELETE",
         headers: { "x-admin-role": "warden" },
       });

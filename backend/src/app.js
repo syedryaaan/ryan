@@ -40,12 +40,16 @@ app.get("/", (req, res) => {
   });
 });
 
+const { getDbStatus } = require("./config/db");
+
 // Health check endpoint
 app.get("/api/health", (req, res) => {
+  const db = getDbStatus();
   res.status(200).json({
     status: "OK",
     service: "XSHostel REST API",
     version: "1.0.0",
+    database: db,
   });
 });
 

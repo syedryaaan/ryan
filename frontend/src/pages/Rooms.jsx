@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 
 // ==============================================================================
 // Rooms — Beginner-Friendly Campus Dormitories List Page
@@ -98,7 +99,7 @@ function Rooms({ initialBlock = "", initialSearch = "", onNavigate }) {
     setLoading(true);
     setError("");
 
-    let url = "http://localhost:5001/api/rooms";
+    let url = `${API_BASE_URL}/rooms`;
     fetch(url)
       .then((res) => {
         if (!res.ok) throw new Error("Could not fetch rooms");

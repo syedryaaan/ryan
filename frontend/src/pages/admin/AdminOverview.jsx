@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PureSvgAreaChart from "./PureSvgAreaChart";
 import PureSvgBarChart from "./PureSvgBarChart";
+import { API_BASE_URL } from "../../config/api";
 
 // ==============================================================================
 // AdminOverview — Beginner-Friendly Chief Warden Operations Dashboard
@@ -21,10 +22,10 @@ function AdminOverview() {
 
       // Fetch summary stats and visual chart data in parallel
       const [statsRes, analyticsRes] = await Promise.all([
-        fetch("http://localhost:5001/api/admin/stats", {
+        fetch(`${API_BASE_URL}/admin/stats`, {
           headers: { "x-admin-role": "warden" },
         }),
-        fetch("http://localhost:5001/api/admin/analytics", {
+        fetch(`${API_BASE_URL}/admin/analytics`, {
           headers: { "x-admin-role": "warden" },
         }),
       ]);

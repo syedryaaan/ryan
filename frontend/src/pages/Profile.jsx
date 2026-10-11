@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -27,7 +28,7 @@ function Profile() {
     try {
       setLoading(true);
       setProfileError("");
-      const response = await fetch("http://localhost:5001/api/users/profile");
+      const response = await fetch(`${API_BASE_URL}/users/profile`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -60,7 +61,7 @@ function Profile() {
       setProfileError("");
       setProfileSuccess("");
 
-      const response = await fetch("http://localhost:5001/api/users/profile", {
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -109,7 +110,7 @@ function Profile() {
     try {
       setSavingPassword(true);
 
-      const response = await fetch("http://localhost:5001/api/users/change-password", {
+      const response = await fetch(`${API_BASE_URL}/users/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

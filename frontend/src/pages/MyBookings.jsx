@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -20,7 +21,7 @@ function MyBookings() {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch("http://localhost:5001/api/bookings/my", {
+      const response = await fetch(`${API_BASE_URL}/bookings/my`, {
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
@@ -80,7 +81,7 @@ function MyBookings() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `http://localhost:5001/api/bookings/${selectedBooking._id}/cancel`,
+        `${API_BASE_URL}/bookings/${selectedBooking._id}/cancel`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

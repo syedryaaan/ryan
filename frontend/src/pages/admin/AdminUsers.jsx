@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 
 // ==============================================================================
 // AdminUsers — Beginner-Friendly Student & Staff Directory Component
@@ -24,7 +25,7 @@ function AdminUsers() {
     try {
       setLoading(true);
       setError("");
-      let url = "http://localhost:5001/api/admin/users?";
+      let url = `${API_BASE_URL}/admin/users?`;
       if (search.trim()) url += `search=${encodeURIComponent(search.trim())}&`;
       if (roleFilter !== "All") url += `role=${encodeURIComponent(roleFilter)}`;
 
@@ -61,7 +62,7 @@ function AdminUsers() {
   const executeToggle = async (user) => {
     try {
       setToggling(true);
-      const res = await fetch(`http://localhost:5001/api/admin/users/${user._id}/toggle-status`, {
+      const res = await fetch(`${API_BASE_URL}/admin/users/${user._id}/toggle-status`, {
         method: "PATCH",
         headers: { "x-admin-role": "warden" },
       });

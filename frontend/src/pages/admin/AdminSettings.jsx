@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 
 // ==============================================================================
 // AdminSettings — Beginner-Friendly Campus Operating Policies Component
@@ -22,7 +23,7 @@ function AdminSettings() {
     try {
       setLoading(true);
       setError("");
-      const res = await fetch("http://localhost:5001/api/admin/settings", {
+      const res = await fetch(`${API_BASE_URL}/admin/settings`, {
         headers: { "x-admin-role": "warden" },
       });
       const data = await res.json();
@@ -54,7 +55,7 @@ function AdminSettings() {
       setSaving(true);
       setError("");
 
-      const res = await fetch("http://localhost:5001/api/admin/settings", {
+      const res = await fetch(`${API_BASE_URL}/admin/settings`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

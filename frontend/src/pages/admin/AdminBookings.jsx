@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../config/api";
 
 // ==============================================================================
 // AdminBookings — Beginner-Friendly Allocations Ledger Component
@@ -18,7 +19,7 @@ function AdminBookings() {
     try {
       setLoading(true);
       setError("");
-      let url = "http://localhost:5001/api/admin/bookings";
+      let url = `${API_BASE_URL}/admin/bookings`;
       if (filterStatus !== "All") {
         url += `?status=${filterStatus}`;
       }
@@ -46,7 +47,7 @@ function AdminBookings() {
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
       setUpdatingId(bookingId);
-      const res = await fetch(`http://localhost:5001/api/admin/bookings/${bookingId}/status`, {
+      const res = await fetch(`${API_BASE_URL}/admin/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

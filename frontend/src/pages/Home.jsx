@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config/api";
 
 // ==============================================================================
 // Home — Beginner-Friendly Smart Campus Home Page
@@ -113,7 +114,7 @@ function Home({ onNavigate }) {
     setLoading(true);
     setError("");
 
-    fetch("/api/rooms?limit=3")
+    fetch(`${API_BASE_URL}/rooms?limit=3`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Unable to load rooms.");
