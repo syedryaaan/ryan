@@ -5,9 +5,9 @@ const connectDB = async () => {
   try {
     const mongoUri =
       process.env.MONGO_URI ||
-      "mongodb+srv://syedryaaan_db_user:Rayyan1122@cluster0.ageb2ld.mongodb.net/?appName=Cluster0";
+      "mongodb+srv://syedryaaan_db_user:Rayyan1122@cluster0.ageb2ld.mongodb.net/hostel-management?retryWrites=true&w=majority&appName=Cluster0";
     const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 8000,
     });
     console.log(`[MongoDB] Connected successfully to host: ${conn.connection.host}`);
     return conn;
