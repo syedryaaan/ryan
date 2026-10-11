@@ -5,7 +5,7 @@ const connectDB = async () => {
   try {
     const mongoUri =
       process.env.MONGO_URI ||
-      "mongodb://127.0.0.1:27017/hostel-management";
+      "mongodb+srv://syedryaaan_db_user:Rayyan1122@cluster0.ageb2ld.mongodb.net/?appName=Cluster0";
     const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 3000,
     });
