@@ -34,7 +34,7 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET || "supersecretjwtkey_xshostel_2026_capstone"
+        process.env.JWT_SECRET || "xshostel_jwt_secret_key_2026"
       );
 
       // Try finding user in MongoDB if connected
