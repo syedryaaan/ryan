@@ -1,19 +1,24 @@
 const express = require('express');
 const cors = require('cors');
 
+// Initialize the Express application
 const app = express();
 
-// Cross-Origin Resource Sharing (CORS)
+// Configure Cross-Origin Resource Sharing (CORS)
+// Allows the React frontend to communicate with this API
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 
-// Body Parser Middleware
+// Request Body Parsing Middleware
+// express.json() parses incoming requests with JSON payloads (e.g., POST/PUT requests)
 app.use(express.json());
+// express.urlencoded() parses incoming requests with URL-encoded payloads (e.g., standard HTML forms)
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Endpoint (Issue #1 Foundation)
+// Health Check API Endpoint
+// Used to verify that the backend server is running and healthy
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -24,17 +29,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ========================================================
-// NOTE FOR TEAM MEMBERS:
-// Mount routes here as feature branches are implemented:
-// - Issue #3: app.use('/api/auth', authRoutes);
-// - Issue #5: app.use('/api/rooms', roomRoutes);
-// - Issue #6: app.use('/api/bookings', bookingRoutes);
-// - Issue #7: app.use('/api/users', userRoutes);
-// - Issue #8: app.use('/api/admin', adminRoutes);
-// ========================================================
-
-// 404 Fallback Handler
+// 404 Fallback Route Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -42,4 +37,5 @@ app.use((req, res) => {
   });
 });
 
+// Export the configured app for use in server.js or automated tests
 module.exports = app;
